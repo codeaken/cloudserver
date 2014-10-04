@@ -1,0 +1,19 @@
+{
+    "name": "codeaken/cloudserver",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Magnus Johansson",
+            "email": "magnus@codeaken.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "guzzlehttp/guzzle": "~4.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Codeaken\\CloudServer\\": "src/"
+        }
+    }
+}
