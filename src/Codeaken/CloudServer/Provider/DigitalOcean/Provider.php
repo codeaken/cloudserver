@@ -128,10 +128,12 @@ class Provider implements ProviderInterface
     public function create($name, $region, $size, $image)
     {
         $attributes = [
-            'name'   => $name,
-            'region' => $region,
-            'size'   => $size,
-            'image'  => $image
+            'name'               => $name,
+            'region'             => $region,
+            'size'               => $size,
+            'image'              => $image,
+            'ipv6'               => true,
+            'private_networking' => true
         ];
 
         $apiMachine = $this->sendRequest('post', 'droplets', $attributes);
