@@ -71,12 +71,12 @@ class Machine implements MachineInterface
 
     public function getAvailableKernels()
     {
-        $apiKernels = $this->provider->getHttpClient()
-                           ->get("droplets/{$this->id}/kernels")
-                           ->json()['kernels'];
+        $apiKernels = $this->provider->sendRequest(
+            'get', "droplets/{$this->id}/kernels"
+        );
 
         $kernels = [];
-        foreach ($apiKernels as $kernel) {
+        foreach ($apiKernels['kernels'] as $kernel) {
             $kernels[$kernel['id']] = Kernel::create($kernel);
         }
 
@@ -115,19 +115,18 @@ class Machine implements MachineInterface
 
     public function delete()
     {
-        $this->provider->getHttpClient()->delete("droplets/{$this->id}");
+        $this->provider->sendRequest('delete', "droplets/{$this->id}");
     }
 
     private function runAction($action)
     {
-        $apiAction = $this->provider->getHttpClient()->post(
-            "droplets/{$this->id}/actions",
-            ['body' => json_encode(['type' => $action])]
-        )->json()['action'];
+        $apiAction = $this->provider->sendRequest(
+            'post', "droplets/{$this->id}/actions", ['type' => $action]
+        );
 
         Action::waitUntilActionCompletes(
             $this->provider,
-            $apiAction['id']
+            $apiAction['action']['id']
         );
     }
 }

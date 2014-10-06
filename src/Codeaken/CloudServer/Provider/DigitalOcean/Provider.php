@@ -25,17 +25,12 @@ class Provider implements ProviderInterface
         $this->httpClient = new Client($clientOptions);
     }
 
-    public function getHttpClient()
-    {
-        return $this->httpClient;
-    }
-
     public function getRegions()
     {
-        $apiRegions = $this->httpClient->get('regions')->json()['regions'];
+        $apiRegions = $this->sendRequest('get', 'regions');
 
         $regions = [];
-        foreach ($apiRegions as $region) {
+        foreach ($apiRegions['regions'] as $region) {
             $regions[$region['slug']] = Region::create($region);
         }
 
@@ -55,10 +50,10 @@ class Provider implements ProviderInterface
 
     public function getSizes()
     {
-        $apiSizes = $this->httpClient->get('sizes')->json()['sizes'];
+        $apiSizes = $this->sendRequest('get', 'sizes');
 
         $sizes = [];
-        foreach ($apiSizes as $size) {
+        foreach ($apiSizes['sizes'] as $size) {
             $sizes[$size['slug']] = Size::create($size);
         }
 
@@ -78,10 +73,10 @@ class Provider implements ProviderInterface
 
     public function getImages()
     {
-        $apiImages = $this->httpClient->get('images')->json()['images'];
+        $apiImages = $this->sendRequest('get', 'images');
 
         $images = [];
-        foreach ($apiImages as $image) {
+        foreach ($apiImages['images'] as $image) {
             $id = empty($image['slug']) ? $image['id'] : $image['slug'];
 
             $images[$id] = Image::create($image);
@@ -103,10 +98,10 @@ class Provider implements ProviderInterface
 
     public function getMachines()
     {
-        $apiMachines = $this->httpClient->get('droplets')->json()['droplets'];
+        $apiMachines = $this->sendRequest('get', 'droplets');
 
         $machines = [];
-        foreach ($apiMachines as $machine) {
+        foreach ($apiMachines['droplets'] as $machine) {
             $machines[$machine['id']] = new Machine(
                 $this,
                 $machine
@@ -136,10 +131,7 @@ class Provider implements ProviderInterface
             'image'  => $image
         ];
 
-        $apiMachine = $this->httpClient->post(
-            'droplets',
-            ['body' => json_encode($attributes)]
-        )->json();
+        $apiMachine = $this->sendRequest('post', 'droplets', $attributes);
 
         Action::waitUntilActionCompletes(
             $this,
@@ -147,5 +139,20 @@ class Provider implements ProviderInterface
         );
 
         return $this->getMachine($apiMachine['droplet']['id']);
+    }
+
+    public function sendRequest($method, $action, $data = null)
+    {
+        if ( ! empty($data)) {
+            $request = $this->httpClient->createRequest(
+                $method, $action, ['json' => $data]
+            );
+        } else {
+            $request = $this->httpClient->createRequest($method, $action);
+        }
+
+        $response = $this->httpClient->send($request)->json();
+
+        return $response;
     }
 }

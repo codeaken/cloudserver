@@ -4,7 +4,6 @@ namespace Codeaken\CloudServer;
 interface ProviderInterface
 {
     public function __construct(array $options);
-    public function getHttpClient();
     public function getRegions();
     public function getRegion($id);
     public function getSizes();
