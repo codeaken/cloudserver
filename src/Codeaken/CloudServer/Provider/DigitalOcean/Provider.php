@@ -2,7 +2,10 @@
 namespace Codeaken\CloudServer\Provider\DigitalOcean;
 
 use Codeaken\CloudServer\ProviderInterface;
+use Codeaken\CloudServer\Exception\AuthenticationException;
+use Codeaken\CloudServer\Exception\AuthorizationException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 
 class Provider implements ProviderInterface
 {
@@ -151,7 +154,20 @@ class Provider implements ProviderInterface
             $request = $this->httpClient->createRequest($method, $action);
         }
 
-        $response = $this->httpClient->send($request)->json();
+        try {
+            $response = $this->httpClient->send($request)->json();
+        } catch (ClientException $e) {
+            switch ($e->getResponse()->getStatusCode()) {
+                case '401':
+                    throw new AuthenticationException();
+
+                case '403':
+                    throw new AuthorizationException();
+
+                default:
+                    throw $e;
+            }
+        }
 
         return $response;
     }
