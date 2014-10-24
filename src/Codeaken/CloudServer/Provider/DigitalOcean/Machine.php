@@ -22,7 +22,7 @@ class Machine implements MachineInterface
         $this->id       = $data['id'];
         $this->name     = $data['name'];
         $this->region   = Region::create($data['region']);
-        $this->sizeId   = $data['size']['slug'];
+        $this->sizeId   = $data['size_slug'];
         $this->image    = Image::create($data['image']);
         $this->kernel   = Kernel::create($data['kernel']);
 
