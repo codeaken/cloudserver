@@ -5,6 +5,7 @@ use Codeaken\CloudServer\ProviderInterface;
 use Codeaken\CloudServer\Exception\AuthenticationException;
 use Codeaken\CloudServer\Exception\AuthorizationException;
 use Codeaken\CloudServer\Exception\RequestException;
+use Codeaken\SshKey\SshKey;
 use Codeaken\SshKey\SshPublicKey;
 use GuzzleHttp\Client;
 
@@ -117,6 +118,9 @@ class Provider implements ProviderInterface
 
     public function getMachine($id)
     {
+        // @todo make a request for the specific machine instead of getting
+        // all of them and picking the one we want
+
         $machines = $this->getMachines();
 
         if ( ! isset($machines[$id])) {
@@ -126,8 +130,10 @@ class Provider implements ProviderInterface
         return $machines[$id];
     }
 
-    public function create($name, $region, $size, $image)
+    public function create($name, $region, $size, $image, SshPublicKey $key = null)
     {
+        $hasSshKey = !is_null($key);
+
         $attributes = [
             'name'               => $name,
             'region'             => $region,
@@ -137,12 +143,24 @@ class Provider implements ProviderInterface
             'private_networking' => true
         ];
 
+        if ($hasSshKey) {
+            // Upload the ssh key so we can attach it to the machine
+            $sshKeyId = $this->addSshKey($key);
+            $attributes['ssh_keys'] = [ $sshKeyId ];
+        }
+
         $apiMachine = $this->sendRequest('post', 'droplets', $attributes);
 
         Action::waitUntilActionCompletes(
             $this,
             $apiMachine['links']['actions'][0]['id']
         );
+
+        if ($hasSshKey) {
+            // Remove the ssh key since we dont need it anymore now that the
+            // machine is created and the key has been added to it
+            $this->removeSshKey($key);
+        }
 
         return $this->getMachine($apiMachine['droplet']['id']);
     }
@@ -177,5 +195,24 @@ class Provider implements ProviderInterface
         }
 
         return $response;
+    }
+
+    protected function addSshKey(SshPublicKey $key)
+    {
+        $apiKey = $this->sendRequest(
+            'post',
+            'account/keys',
+            [
+                'name'       => $key->getFingerprint(),
+                'public_key' => $key->getKeyData(SshKey::FORMAT_OPENSSH)
+            ]
+        );
+
+        return $apiKey['ssh_key']['id'];
+    }
+
+    protected function removeSshKey(SshPublicKey $key)
+    {
+        $this->sendRequest('delete', 'account/keys/' . $key->getFingerprint());
     }
 }
