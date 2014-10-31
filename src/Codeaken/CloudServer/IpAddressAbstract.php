@@ -48,4 +48,9 @@ abstract class IpAddressAbstract implements AttributeObjectInterface
     {
         return ($this->type == 'private');
     }
+
+    public function __toString()
+    {
+        return $this->getAddress();
+    }
 }
