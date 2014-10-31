@@ -66,7 +66,7 @@ class Machine implements MachineInterface
 
     public function getKernel()
     {
-        return $kernel;
+        return $this->kernel;
     }
 
     public function getAvailableKernels()
@@ -85,7 +85,7 @@ class Machine implements MachineInterface
 
     public function getIpAddresses()
     {
-        return $ipAddresses;
+        return $this->ipAddresses;
     }
 
     public function boot()
