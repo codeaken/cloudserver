@@ -56,4 +56,9 @@ abstract class SizeAbstract implements AttributeObjectInterface
     {
         return $this->priceHourly;
     }
+
+    public function __toString()
+    {
+        return $this->getId();
+    }   
 }

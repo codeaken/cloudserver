@@ -28,4 +28,9 @@ abstract class ImageAbstract implements AttributeObjectInterface
     {
         return $this->distribution;
     }
+
+    public function __toString()
+    {
+        return $this->getId();
+    }    
 }

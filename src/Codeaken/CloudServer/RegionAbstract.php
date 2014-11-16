@@ -42,4 +42,9 @@ abstract class RegionAbstract implements AttributeObjectInterface
     {
         return $this->available;
     }
+
+    public function __toString()
+    {
+        return $this->getId();
+    }    
 }

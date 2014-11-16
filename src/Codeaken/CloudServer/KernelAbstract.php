@@ -28,4 +28,9 @@ abstract class KernelAbstract implements AttributeObjectInterface
     {
         return $this->version;
     }
+
+    public function __toString()
+    {
+        return (string)$this->getId();
+    }
 }
