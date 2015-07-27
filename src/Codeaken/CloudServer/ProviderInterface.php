@@ -7,6 +7,8 @@ interface ProviderInterface
     public function getRegions();
     public function getRegion($id);
     public function getSizes();
+    public function getSizesByRegion();
+    public function getSizesInRegion($region);
     public function getSize($id);
     public function getImages();
     public function getImage($id);

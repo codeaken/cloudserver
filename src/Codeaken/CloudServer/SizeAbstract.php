@@ -10,8 +10,9 @@ abstract class SizeAbstract implements AttributeObjectInterface
     protected $transfer;
     protected $priceMonthly;
     protected $priceHourly;
+    protected $regions;
 
-    protected function __construct($id, $memory, $cpu, $disk, $transfer, $priceMonthly, $priceHourly)
+    protected function __construct($id, $memory, $cpu, $disk, $transfer, $priceMonthly, $priceHourly, array $regions)
     {
         $this->id           = $id;
         $this->memory       = $memory;
@@ -20,6 +21,7 @@ abstract class SizeAbstract implements AttributeObjectInterface
         $this->transfer     = $transfer;
         $this->priceMonthly = $priceMonthly;
         $this->priceHourly  = $priceHourly;
+        $this->regions      = $regions;
     }
 
     public function getId()
@@ -57,8 +59,18 @@ abstract class SizeAbstract implements AttributeObjectInterface
         return $this->priceHourly;
     }
 
+    public function getRegions()
+    {
+        return $this->regions;
+    }
+
+    public function availableInRegion($regionId)
+    {
+        return in_array($regionId, $this->regions);
+    }
+
     public function __toString()
     {
         return $this->getId();
-    }   
+    }
 }

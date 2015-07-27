@@ -65,6 +65,37 @@ class Provider implements ProviderInterface
         return $sizes;
     }
 
+    public function getSizesByRegion()
+    {
+        $allSizes = $this->getSizes();
+
+        $regions = [];
+        foreach ($allSizes as $size) {
+            foreach ($size->getRegions() as $region) {
+                if (!isset($regions[$region])) {
+                    $regions[$region] = [];
+                }
+                $regions[$region][] = $size;
+            }
+        }
+
+        return $regions;
+    }
+
+    public function getSizesInRegion($region)
+    {
+        $allSizes = $this->getSizes();
+
+        $sizesInRegion = [];
+        foreach ($allSizes as $size) {
+            if ($size->availableInRegion($region)) {
+                $sizesInRegion[] = $size;
+            }
+        }
+
+        return $sizesInRegion;
+    }
+
     public function getSize($id)
     {
         $sizes = $this->getSizes();

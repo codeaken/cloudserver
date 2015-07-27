@@ -14,7 +14,8 @@ class Size extends SizeAbstract
             $data['disk'],
             $data['transfer'],
             $data['price_monthly'],
-            $data['price_hourly']
+            $data['price_hourly'],
+            $data['regions']
         );
     }
 }
