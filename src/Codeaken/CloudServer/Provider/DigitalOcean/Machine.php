@@ -88,6 +88,17 @@ class Machine implements MachineInterface
         return $this->ipAddresses;
     }
 
+    public function getPublicIpv4()
+    {
+        foreach ($this->getIpAddresses() as $ip) {
+            if ($ip->isPublic() && $ip->isIpV4()) {
+                return (string)$ip;
+            }
+        }
+
+        return false;
+    }
+
     public function boot()
     {
         $this->runAction('power_on');

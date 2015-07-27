@@ -12,6 +12,7 @@ interface MachineInterface
     public function getKernel();
     public function getAvailableKernels();
     public function getIpAddresses();
+    public function getPublicIpv4();
     public function boot();
     public function reboot();
     public function shutdown();
