@@ -35,6 +35,9 @@ class Region extends RegionAbstract
 
             case 'sgp1':
                 return 'sg';
+
+            case 'fra1':
+                return 'de';
         }
 
         return '??';
@@ -61,6 +64,9 @@ class Region extends RegionAbstract
 
             case 'sgp1':
                 return 'Singapore';
+
+            case 'fra1':
+                return 'Frankfurt';
         }
 
         return 'Unknown';
