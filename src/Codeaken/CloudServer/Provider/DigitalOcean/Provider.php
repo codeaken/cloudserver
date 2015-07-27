@@ -30,6 +30,56 @@ class Provider implements ProviderInterface
         $this->httpClient = new Client($clientOptions);
     }
 
+    public function getTokenInfo()
+    {
+        $info = [
+            'valid'        => false,
+            'read_access'  => false,
+            'write_access' => false,
+        ];
+
+        try {
+            // First check if this access token is valid by making a call to the
+            // API
+            $this->getRegions();
+
+            // No exception occured, this token can be used to access the account
+            $info['valid']       = true;
+            $info['read_access'] = true;
+
+            // Next try to create a bogus DNS entry to check for write access
+            // to the account
+            $charset = 'abcdefhgijklmnopqrstuvwxyz';
+
+            $domain = '';
+            for ($i = 0; $i < 60; $i++) {
+                $domain .= $charset[ rand(0, strlen($charset) - 1) ];
+            }
+            $domain .= '.com';
+
+            $this->sendRequest(
+                'post',
+                'domains',
+                [
+                    'name'       => $domain,
+                    'ip_address' => '127.0.0.1'
+                ]
+            );
+
+            // We are still here so the creation of the DNS entry was
+            // successful. Delete the domain and mark this token as having
+            // write access to the account
+            $this->sendRequest('delete', "domains/$domain");
+            $info['write_access'] = true;
+        }
+        catch (AuthenticationException $e)
+        { }
+        catch (AuthorizationException $e)
+        { }
+
+        return $info;
+    }
+
     public function getRegions()
     {
         $apiRegions = $this->sendRequest('get', 'regions');
