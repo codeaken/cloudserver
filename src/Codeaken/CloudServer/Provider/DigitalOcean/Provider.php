@@ -214,6 +214,7 @@ class Provider implements ProviderInterface
     public function create($name, $region, $size, $image, SshPublicKey $key = null)
     {
         $hasSshKey = !is_null($key);
+        $deleteSshKey = false;
 
         $attributes = [
             'name'               => $name,
@@ -225,8 +226,22 @@ class Provider implements ProviderInterface
         ];
 
         if ($hasSshKey) {
-            // Upload the ssh key so we can attach it to the machine
-            $sshKeyId = $this->addSshKey($key);
+            try {
+                // Import the ssh key so we can attach it to the machine
+                $sshKeyId = $this->addSshKey($key);
+                $deleteSshKey = true;
+            }
+            catch (RequestException $e) {
+                // The key has most likely already been uploaded to the account
+                // so just get the id for it
+                $response = $this->sendRequest(
+                    'get',
+                    'account/keys/' . $key->getFingerprint()
+                );
+
+                $sshKeyId = $response['ssh_key']['id'];
+            }
+
             $attributes['ssh_keys'] = [ $sshKeyId ];
         }
 
@@ -237,7 +252,7 @@ class Provider implements ProviderInterface
             $apiMachine['links']['actions'][0]['id']
         );
 
-        if ($hasSshKey) {
+        if ($hasSshKey && $deleteSshKey) {
             // Remove the ssh key since we dont need it anymore now that the
             // machine is created and the key has been added to it
             $this->removeSshKey($key);
