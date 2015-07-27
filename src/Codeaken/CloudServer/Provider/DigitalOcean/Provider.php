@@ -247,10 +247,23 @@ class Provider implements ProviderInterface
 
         $apiMachine = $this->sendRequest('post', 'droplets', $attributes);
 
+        // Wait until the machine is up and has ip addresses assigned to it
         Action::waitUntilActionCompletes(
             $this,
             $apiMachine['links']['actions'][0]['id']
         );
+
+        // Get the machine so we can get an ip-address to connect to
+        $machine = $this->getMachine($apiMachine['droplet']['id']);
+
+        // Do not return until SSH is up and we can connect
+        $defaultTimeout = ini_set('default_socket_timeout', 5);
+
+        while( ! @fsockopen($machine->getPublicIpv4(), 22)) {
+            sleep(2);
+        }
+
+        ini_set('default_socket_timeout', $defaultTimeout);
 
         if ($hasSshKey && $deleteSshKey) {
             // Remove the ssh key since we dont need it anymore now that the
@@ -258,7 +271,7 @@ class Provider implements ProviderInterface
             $this->removeSshKey($key);
         }
 
-        return $this->getMachine($apiMachine['droplet']['id']);
+        return $machine;
     }
 
     public function sendRequest($method, $action, $data = null)
