@@ -10,7 +10,8 @@
     "require": {
         "php": ">=5.4.0",
         "guzzlehttp/guzzle": "~5.0",
-        "codeaken/sshkey": "@dev"
+        "codeaken/sshkey": "@dev",
+        "codeaken/emitter": "@dev"
     },
     "autoload": {
         "psr-0": {

@@ -7,10 +7,14 @@ use Codeaken\CloudServer\Exception\AuthorizationException;
 use Codeaken\CloudServer\Exception\RequestException;
 use Codeaken\SshKey\SshKey;
 use Codeaken\SshKey\SshPublicKey;
+use Codeaken\Emitter\EmitterTrait;
+use Codeaken\Emitter\EmitterInterface;
 use GuzzleHttp\Client;
 
-class Provider implements ProviderInterface
+class Provider implements ProviderInterface, EmitterInterface
 {
+    use EmitterTrait;
+
     private $httpClient;
 
     public function __construct(array $options)
@@ -245,6 +249,8 @@ class Provider implements ProviderInterface
             $attributes['ssh_keys'] = [ $sshKeyId ];
         }
 
+        $this->emit('machine.create');
+
         $apiMachine = $this->sendRequest('post', 'droplets', $attributes);
 
         // Wait until the machine is up and has ip addresses assigned to it
@@ -253,10 +259,14 @@ class Provider implements ProviderInterface
             $apiMachine['links']['actions'][0]['id']
         );
 
+        $this->emit('machine.up');
+
         // Get the machine so we can get an ip-address to connect to
         $machine = $this->getMachine($apiMachine['droplet']['id']);
 
         // Do not return until SSH is up and we can connect
+        $this->emit('ssh.waiting');
+
         $defaultTimeout = ini_set('default_socket_timeout', 5);
 
         while( ! @fsockopen($machine->getPublicIpv4(), 22)) {
@@ -264,6 +274,8 @@ class Provider implements ProviderInterface
         }
 
         ini_set('default_socket_timeout', $defaultTimeout);
+
+        $this->emit('ssh.up');
 
         if ($hasSshKey && $deleteSshKey) {
             // Remove the ssh key since we dont need it anymore now that the
