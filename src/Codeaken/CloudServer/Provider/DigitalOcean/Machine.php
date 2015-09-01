@@ -14,6 +14,7 @@ class Machine implements MachineInterface
     private $kernel;
     private $sizeId;
     private $ipAddresses;
+    private $isRunning = false;
 
     public function __construct($provider, $data)
     {
@@ -36,6 +37,10 @@ class Machine implements MachineInterface
             $ip['version'] = '6';
 
             $this->ipAddresses[] = IpAddress::create($ip);
+        }
+
+        if ($data['status'] == 'active') {
+            $this->isRunning = true;
         }
     }
 
@@ -127,6 +132,11 @@ class Machine implements MachineInterface
     public function delete()
     {
         $this->provider->sendRequest('delete', "droplets/{$this->id}");
+    }
+
+    public function isRunning()
+    {
+        return $this->isRunning;
     }
 
     private function runAction($action)

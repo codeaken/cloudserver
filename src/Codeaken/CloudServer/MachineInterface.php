@@ -19,4 +19,5 @@ interface MachineInterface
     public function powerOff();
     public function powerCycle();
     public function delete();
+    public function isRunning();
 }
