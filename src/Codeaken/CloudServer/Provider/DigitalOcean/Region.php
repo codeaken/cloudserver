@@ -38,6 +38,9 @@ class Region extends RegionAbstract
 
             case 'fra1':
                 return 'de';
+
+            case 'tor1':
+                return 'ca';
         }
 
         return '??';
@@ -67,6 +70,9 @@ class Region extends RegionAbstract
 
             case 'fra1':
                 return 'Frankfurt';
+
+            case 'tor1':
+                return 'Toronto';
         }
 
         return 'Unknown';
