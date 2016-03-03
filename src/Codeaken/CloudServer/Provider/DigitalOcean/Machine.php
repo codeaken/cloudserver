@@ -15,6 +15,7 @@ class Machine implements MachineInterface
     private $sizeId;
     private $ipAddresses;
     private $isRunning = false;
+    private $isDeleted = false;
 
     public function __construct($provider, $data)
     {
@@ -41,6 +42,10 @@ class Machine implements MachineInterface
 
         if ($data['status'] == 'active') {
             $this->isRunning = true;
+        }
+
+        if ($data['status'] == 'archive') {
+            $this->isDeleted = true;
         }
     }
 
@@ -137,6 +142,11 @@ class Machine implements MachineInterface
     public function isRunning()
     {
         return $this->isRunning;
+    }
+
+    public function isDeleted()
+    {
+        return $this->isDeleted;
     }
 
     private function runAction($action)

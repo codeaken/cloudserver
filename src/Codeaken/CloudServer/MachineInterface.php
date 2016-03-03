@@ -20,4 +20,5 @@ interface MachineInterface
     public function powerCycle();
     public function delete();
     public function isRunning();
+    public function isDeleted();
 }
