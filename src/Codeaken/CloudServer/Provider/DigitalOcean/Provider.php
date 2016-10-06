@@ -269,7 +269,14 @@ class Provider implements ProviderInterface, EmitterInterface
 
         $defaultTimeout = ini_set('default_socket_timeout', 5);
 
-        while( ! @fsockopen($machine->getPublicIpv4(), 22)) {
+        while(true) {
+            try {
+                if (fsockopen($machine->getPublicIpv4(), 22)) {
+                    break;
+                }
+            } catch (\ErrorException $e) {
+            }
+
             sleep(2);
         }
 
