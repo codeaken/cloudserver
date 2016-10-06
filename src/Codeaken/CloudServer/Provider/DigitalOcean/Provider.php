@@ -297,7 +297,11 @@ class Provider implements ProviderInterface, EmitterInterface
         }
 
         try {
-            $response = $this->httpClient->send($request)->json();
+            $response = $this->httpClient->send($request);
+
+            if ($response->getStatusCode() != 204) {
+                $response = $response->json();
+            }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             switch ($e->getResponse()->getStatusCode()) {
                 case '401':
