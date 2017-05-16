@@ -203,16 +203,9 @@ class Provider implements ProviderInterface, EmitterInterface
 
     public function getMachine($id)
     {
-        // @todo make a request for the specific machine instead of getting
-        // all of them and picking the one we want
+        $response = $this->sendRequest('get', "droplets/$id");
 
-        $machines = $this->getMachines();
-
-        if ( ! isset($machines[$id])) {
-            return false;
-        }
-
-        return $machines[$id];
+        return new Machine($this, $response['droplet']);
     }
 
     public function create($name, $region, $size, $image, SshPublicKey $key = null)
