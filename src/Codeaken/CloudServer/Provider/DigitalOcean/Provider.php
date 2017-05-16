@@ -286,6 +286,55 @@ class Provider implements ProviderInterface, EmitterInterface
         return $machine;
     }
 
+    public function getVolume($id)
+    {
+        $response = $this->sendRequest('get', "volumes/$id");
+
+        return Volume::create($response['volume']);
+    }
+
+    public function createVolume($name, $region, $size)
+    {
+        $attributes = [
+            'name' => $name,
+            'region' => $region,
+            'size_gigabytes' => $size
+        ];
+
+        $response = $this->sendRequest('post', 'volumes', $attributes);
+
+        return Volume::create($response['volume']);
+    }
+
+    public function resizeVolume($id, $size)
+    {
+        $volume = $this->getVolume($id);
+
+        if ($volume->getSize() == $size) {
+            return $volume;
+        }
+
+        $attributes = [
+            'type' => 'resize',
+            'size_gigabytes' => $size,
+            'region' => $volume->getRegion()
+        ];
+
+        $response = $this->sendRequest('post', "volumes/$id/actions", $attributes);
+
+        Action::waitUntilActionCompletes(
+            $this,
+            $response['action']['id']
+        );
+
+        return $this->getVolume($id);
+    }
+
+    public function deleteVolume($id)
+    {
+        $this->sendRequest('delete', "volumes/$id");
+    }
+
     public function sendRequest($method, $action, $data = null)
     {
         if ( ! empty($data)) {
@@ -311,6 +360,7 @@ class Provider implements ProviderInterface, EmitterInterface
                     throw new AuthorizationException();
 
                 case '422':
+                case '409';
                     $error = $e->getResponse()->json();
                     throw new RequestException($error['message']);
 

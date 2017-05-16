@@ -14,6 +14,7 @@ class Machine implements MachineInterface
     private $kernel;
     private $sizeId;
     private $ipAddresses;
+    private $volumeIds;
     private $isRunning = false;
     private $isDeleted = false;
 
@@ -21,12 +22,13 @@ class Machine implements MachineInterface
     {
         $this->provider = $provider;
 
-        $this->id       = $data['id'];
-        $this->name     = $data['name'];
-        $this->region   = Region::create($data['region']);
-        $this->sizeId   = $data['size_slug'];
-        $this->image    = Image::create($data['image']);
-        $this->kernel   = Kernel::create($data['kernel']);
+        $this->id        = $data['id'];
+        $this->name      = $data['name'];
+        $this->region    = Region::create($data['region']);
+        $this->sizeId    = $data['size_slug'];
+        $this->image     = Image::create($data['image']);
+        $this->kernel    = Kernel::create($data['kernel']);
+        $this->volumeIds = $data['volume_ids'];
 
         foreach ($data['networks']['v4'] as $ip) {
             $ip['version'] = '4';
@@ -107,6 +109,31 @@ class Machine implements MachineInterface
         }
 
         return false;
+    }
+
+    public function attachVolume($volumeId)
+    {
+        $attributes = [
+            'type' => 'attach',
+            'droplet_id' => $this->id
+        ];
+
+        $response = $this->provider->sendRequest('post', "volumes/$volumeId/actions", $attributes);
+    }
+
+    public function detachVolume($volumeId)
+    {
+        $attributes = [
+            'type' => 'detach',
+            'droplet_id' => $this->id
+        ];
+
+        $response = $this->provider->sendRequest('post', "volumes/$volumeId/actions", $attributes);
+    }
+
+    public function getVolumeIds()
+    {
+        return $this->volumeIds;
     }
 
     public function boot()

@@ -15,4 +15,8 @@ interface ProviderInterface
     public function getImage($id);
     public function getMachines();
     public function getMachine($id);
+    public function getVolume($id);
+    public function createVolume($name, $region, $size);
+    public function resizeVolume($id, $size);
+    public function deleteVolume($id);
 }

@@ -13,6 +13,9 @@ interface MachineInterface
     public function getAvailableKernels();
     public function getIpAddresses();
     public function getPublicIpv4();
+    public function attachVolume($volumeId);
+    public function detachVolume($volumeId);
+    public function getVolumeIds();
     public function boot();
     public function reboot();
     public function shutdown();
