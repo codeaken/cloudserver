@@ -347,7 +347,7 @@ class Provider implements ProviderInterface, EmitterInterface
             $response = $this->httpClient->send($request);
 
             if ($response->getStatusCode() != 204) {
-                $response = $response->json();
+                $response = json_decode($response->getBody(), true);
             }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             switch ($e->getResponse()->getStatusCode()) {
@@ -359,7 +359,7 @@ class Provider implements ProviderInterface, EmitterInterface
 
                 case '422':
                 case '409';
-                    $error = $e->getResponse()->json();
+                    $error = json_decode($e->getResponse()->getBody(), true);
                     throw new RequestException($error['message']);
 
                 default:
