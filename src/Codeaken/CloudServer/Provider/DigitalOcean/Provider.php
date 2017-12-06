@@ -24,11 +24,9 @@ class Provider implements ProviderInterface, EmitterInterface
         }
 
         $clientOptions = [
-            'base_url' => 'https://api.digitalocean.com/v2/',
-            'defaults' => [
-                'headers' => ['Content-type' => 'application/json'],
-                'auth'    => [$options['api_key'], '']
-            ]
+            'base_uri' => 'https://api.digitalocean.com/v2/',
+            'headers' => ['Content-type' => 'application/json'],
+            'auth'    => [$options['api_key'], '']
         ];
 
         $this->httpClient = new Client($clientOptions);
@@ -338,11 +336,11 @@ class Provider implements ProviderInterface, EmitterInterface
     public function sendRequest($method, $action, $data = null)
     {
         if ( ! empty($data)) {
-            $request = $this->httpClient->createRequest(
+            $request = $this->httpClient->request(
                 $method, $action, ['json' => $data]
             );
         } else {
-            $request = $this->httpClient->createRequest($method, $action);
+            $request = $this->httpClient->request($method, $action);
         }
 
         try {
