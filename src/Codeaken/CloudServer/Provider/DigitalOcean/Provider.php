@@ -344,7 +344,7 @@ class Provider implements ProviderInterface, EmitterInterface
         }
 
         try {
-            $response = $this->httpClient->send($request);
+            $response = $request->send();
 
             if ($response->getStatusCode() != 204) {
                 $response = json_decode($response->getBody(), true);
