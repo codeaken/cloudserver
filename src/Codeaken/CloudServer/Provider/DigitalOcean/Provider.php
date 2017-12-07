@@ -335,16 +335,14 @@ class Provider implements ProviderInterface, EmitterInterface
 
     public function sendRequest($method, $action, $data = null)
     {
-        if ( ! empty($data)) {
-            $request = $this->httpClient->request(
-                $method, $action, ['json' => $data]
-            );
-        } else {
-            $request = $this->httpClient->request($method, $action);
-        }
-
         try {
-            $response = $request->send();
+            if ( ! empty($data)) {
+                $response = $this->httpClient->request(
+                    $method, $action, ['json' => $data]
+                );
+            } else {
+                $response = $this->httpClient->request($method, $action);
+            }
 
             if ($response->getStatusCode() != 204) {
                 $response = json_decode($response->getBody(), true);
