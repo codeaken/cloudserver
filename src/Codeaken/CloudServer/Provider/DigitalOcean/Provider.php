@@ -25,8 +25,10 @@ class Provider implements ProviderInterface, EmitterInterface
 
         $clientOptions = [
             'base_uri' => 'https://api.digitalocean.com/v2/',
-            'headers' => ['Content-type' => 'application/json'],
-            'auth'    => [$options['api_key'], '']
+            'headers' => [
+                'Content-type'  => 'application/json',
+                'Authorization' => "Bearer {$options['api_key']}",
+            ],
         ];
 
         $this->httpClient = new Client($clientOptions);
